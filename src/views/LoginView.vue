@@ -222,7 +222,6 @@ $muted: #526077;
   img {
     width: 30px;
     filter: brightness(0) invert(1);
-    transform: rotate(180deg);
   }
 }
 
@@ -240,10 +239,6 @@ $muted: #526077;
 
 .loginButton {
   width: 100%;
-
-  img {
-    transform: rotate(180deg);
-  }
 }
 
 .loginHint {

@@ -14,11 +14,11 @@ import {
 import { useAction } from '@/composables/useAction'
 import { useAuthStore } from '@/stores/auth'
 import addIcon from '@/assets/icons/add.svg'
-import authIcon from '@/assets/icons/auth.svg'
 import calendarIcon from '@/assets/icons/calendar.svg'
 import deleteIcon from '@/assets/icons/delete.svg'
 import editIcon from '@/assets/icons/edit.svg'
 import emailIcon from '@/assets/icons/email.svg'
+import logoutIcon from '@/assets/icons/logout.svg'
 import searchIcon from '@/assets/icons/search.svg'
 import userIcon from '@/assets/icons/user.svg'
 import usersIcon from '@/assets/icons/users.svg'
@@ -168,7 +168,7 @@ onMounted(() => {
         </div>
       </div>
       <q-btn :class="$style.logoutButton" flat no-caps @click="logout">
-        <img :src="authIcon" alt="" />
+        <img :src="logoutIcon" alt="" />
         登出
       </q-btn>
     </header>
