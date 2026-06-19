@@ -7,6 +7,7 @@ import type { Account, AccountFormData } from '@/types/account'
 const props = defineProps<{
   modelValue: boolean
   account?: Account | null
+  loading?: boolean
 }>()
 
 const emit = defineEmits<{
@@ -17,19 +18,37 @@ const emit = defineEmits<{
 const emptyForm: AccountFormData = {
   name: '',
   email: '',
-  role: '用戶',
-  status: '啟用',
+  roleLevel: 'USER',
+  status: 'ON',
 }
 
 const form = reactive<AccountFormData>({ ...emptyForm })
-const roleOptions = ['管理員', '用戶', '編輯']
-const statusOptions = ['啟用', '停用']
+const roleOptions = [
+  { label: '管理員', value: 'ADMIN' },
+  { label: '編輯', value: 'EDITOR' },
+  { label: '用戶', value: 'USER' },
+  { label: '訪客', value: 'CLIENT' },
+]
+const statusOptions = [
+  { label: '啟用', value: 'ON' },
+  { label: '停用', value: 'OFF' },
+]
 
 watch(
   () => [props.modelValue, props.account] as const,
   ([isOpen, account]) => {
     if (!isOpen) return
-    Object.assign(form, account ?? emptyForm)
+    Object.assign(
+      form,
+      account
+        ? {
+            name: account.name,
+            email: account.email,
+            roleLevel: account.roleLevel,
+            status: account.status,
+          }
+        : emptyForm,
+    )
   },
   { immediate: true },
 )
@@ -40,16 +59,19 @@ function close() {
 
 function submit() {
   emit('submit', { ...form })
-  close()
 }
 </script>
 
 <template>
-  <q-dialog :model-value="modelValue" @update:model-value="emit('update:modelValue', $event)">
+  <q-dialog
+    :model-value="modelValue"
+    :persistent="loading"
+    @update:model-value="emit('update:modelValue', $event)"
+  >
     <q-card class="account-dialog">
       <q-card-section class="account-dialog__header">
         <h2>{{ account ? '編輯帳號' : '新增帳號' }}</h2>
-        <q-btn flat round dense aria-label="關閉" @click="close">
+        <q-btn flat round dense :disable="loading" aria-label="關閉" @click="close">
           <img :src="closeIcon" alt="" />
         </q-btn>
       </q-card-section>
@@ -84,9 +106,11 @@ function submit() {
           <label class="field-label required" for="account-role">角色</label>
           <q-select
             id="account-role"
-            v-model="form.role"
+            v-model="form.roleLevel"
             class="app-input"
             :options="roleOptions"
+            emit-value
+            map-options
             outlined
           />
 
@@ -96,17 +120,27 @@ function submit() {
             v-model="form.status"
             class="app-input"
             :options="statusOptions"
+            emit-value
+            map-options
             outlined
           />
         </q-card-section>
 
         <q-card-actions class="account-dialog__actions">
-          <q-btn class="cancel-button" flat no-caps label="取消" @click="close" />
+          <q-btn
+            class="cancel-button"
+            flat
+            no-caps
+            :disable="loading"
+            label="取消"
+            @click="close"
+          />
           <q-btn
             class="primary-button"
             type="submit"
             unelevated
             no-caps
+            :loading="loading"
             :label="account ? '儲存變更' : '新增帳號'"
           />
         </q-card-actions>

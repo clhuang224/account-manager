@@ -8,3 +8,5 @@ export interface Account {
   roleLevel: RoleLevel
   status: AccountStatus
 }
+
+export type AccountFormData = Omit<Account, 'id'>
