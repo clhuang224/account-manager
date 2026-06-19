@@ -68,8 +68,8 @@ function submit() {
     :persistent="loading"
     @update:model-value="emit('update:modelValue', $event)"
   >
-    <q-card class="account-dialog">
-      <q-card-section class="account-dialog__header">
+    <q-card :class="$style.accountDialog">
+      <q-card-section :class="$style.accountDialogHeader">
         <h2>{{ account ? '編輯帳號' : '新增帳號' }}</h2>
         <q-btn flat round dense :disable="loading" aria-label="關閉" @click="close">
           <img :src="closeIcon" alt="" />
@@ -78,24 +78,26 @@ function submit() {
 
       <q-separator />
 
-      <q-form class="account-form" @submit.prevent="submit">
-        <q-card-section class="account-dialog__body">
-          <label class="field-label required" for="account-name">姓名</label>
+      <q-form @submit.prevent="submit">
+        <q-card-section :class="$style.accountDialogBody">
+          <label :class="[$style.fieldLabel, $style.required]" for="account-name">姓名</label>
           <q-input
             id="account-name"
             v-model="form.name"
-            class="app-input"
+            :class="$style.appInput"
             outlined
             placeholder="請輸入姓名"
             :rules="[(value) => Boolean(value) || '請輸入姓名']"
             lazy-rules
           />
 
-          <label class="field-label required" for="account-email">電子郵件</label>
+          <label :class="[$style.fieldLabel, $style.required]" for="account-email">
+            電子郵件
+          </label>
           <q-input
             id="account-email"
             v-model="form.email"
-            class="app-input"
+            :class="$style.appInput"
             type="email"
             outlined
             placeholder="email@example.com"
@@ -103,22 +105,22 @@ function submit() {
             lazy-rules
           />
 
-          <label class="field-label required" for="account-role">角色</label>
+          <label :class="[$style.fieldLabel, $style.required]" for="account-role">角色</label>
           <q-select
             id="account-role"
             v-model="form.roleLevel"
-            class="app-input"
+            :class="$style.appInput"
             :options="roleOptions"
             emit-value
             map-options
             outlined
           />
 
-          <label class="field-label required" for="account-status">狀態</label>
+          <label :class="[$style.fieldLabel, $style.required]" for="account-status">狀態</label>
           <q-select
             id="account-status"
             v-model="form.status"
-            class="app-input"
+            :class="$style.appInput"
             :options="statusOptions"
             emit-value
             map-options
@@ -126,9 +128,9 @@ function submit() {
           />
         </q-card-section>
 
-        <q-card-actions class="account-dialog__actions">
+        <q-card-actions :class="$style.accountDialogActions">
           <q-btn
-            class="cancel-button"
+            :class="$style.cancelButton"
             flat
             no-caps
             :disable="loading"
@@ -136,7 +138,7 @@ function submit() {
             @click="close"
           />
           <q-btn
-            class="primary-button"
+            :class="$style.primaryButton"
             type="submit"
             unelevated
             no-caps
@@ -148,3 +150,111 @@ function submit() {
     </q-card>
   </q-dialog>
 </template>
+
+<style module lang="scss">
+$primary: #5538f6;
+$primary-dark: #4327ea;
+
+.primaryButton {
+  min-height: 50px;
+  border-radius: 10px;
+  color: #fff;
+  background: $primary;
+  font-size: 16px;
+  font-weight: 500;
+
+  &:hover {
+    background: $primary-dark;
+  }
+}
+
+.fieldLabel {
+  display: block;
+  margin: 0 0 8px;
+  color: #354158;
+  font-size: 16px;
+}
+
+.required::after {
+  margin-left: 4px;
+  color: #e11d48;
+  content: '*';
+}
+
+.appInput {
+  :global(.q-field__control) {
+    min-height: 50px;
+    border-radius: 10px;
+    background: #fff;
+  }
+
+  :global(.q-field__native),
+  :global(.q-field__input) {
+    font-size: 16px;
+  }
+
+  &:global(.q-field--outlined) :global(.q-field__control)::before {
+    border-color: #ccd3df;
+  }
+
+  &:global(.q-field--focused) :global(.q-field__control)::after {
+    border-color: $primary;
+  }
+}
+
+.accountDialog {
+  width: min(448px, calc(100vw - 32px));
+  max-width: none;
+  border-radius: 16px;
+}
+
+.accountDialogHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  min-height: 68px;
+  padding: 20px 24px;
+
+  h2 {
+    margin: 0;
+    font-size: 17px;
+    font-weight: 500;
+  }
+
+  img {
+    width: 20px;
+    opacity: 0.55;
+  }
+}
+
+.accountDialogBody {
+  padding: 26px 24px 8px;
+
+  .appInput {
+    margin-bottom: 16px;
+  }
+}
+
+.accountDialogActions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  padding: 8px 24px 24px;
+  gap: 12px;
+
+  :global(.q-btn) {
+    min-height: 48px;
+    border-radius: 10px;
+  }
+}
+
+.cancelButton {
+  color: #445066;
+  background: #f1f2f5;
+}
+
+@media (max-width: 560px) {
+  .accountDialogActions {
+    grid-template-columns: 1fr;
+  }
+}
+</style>

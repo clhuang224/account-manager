@@ -158,40 +158,45 @@ onMounted(() => {
 </script>
 
 <template>
-  <div class="home-page">
-    <header class="app-header">
-      <div class="brand">
-        <div class="brand__icon"><img :src="usersIcon" alt="" /></div>
+  <div :class="$style.homePage">
+    <header :class="$style.appHeader">
+      <div :class="$style.brand">
+        <div :class="$style.brandIcon"><img :src="usersIcon" alt="" /></div>
         <div>
           <h1>帳號管理系統</h1>
           <p>管理您的所有帳號</p>
         </div>
       </div>
-      <q-btn class="logout-button" flat no-caps @click="logout">
+      <q-btn :class="$style.logoutButton" flat no-caps @click="logout">
         <img :src="authIcon" alt="" />
         登出
       </q-btn>
     </header>
 
-    <main class="home-content">
-      <section class="home-toolbar">
+    <main :class="$style.homeContent">
+      <section :class="$style.homeToolbar">
         <q-input
           v-model="search"
-          class="app-input search-input"
+          :class="[$style.appInput, $style.searchInput]"
           outlined
           clearable
           placeholder="搜尋帳號（姓名、郵件）..."
         >
-          <template #prepend><img class="field-icon" :src="searchIcon" alt="" /></template>
+          <template #prepend><img :class="$style.fieldIcon" :src="searchIcon" alt="" /></template>
           <template #append><q-spinner v-if="accountsLoading" size="20px" /></template>
         </q-input>
-        <q-btn class="primary-button add-button" unelevated no-caps @click="openCreateDialog">
+        <q-btn
+          :class="[$style.primaryButton, $style.addButton]"
+          unelevated
+          no-caps
+          @click="openCreateDialog"
+        >
           <img :src="addIcon" alt="" />
           新增帳號
         </q-btn>
       </section>
 
-      <section class="summary-grid" aria-label="帳號統計">
+      <section :class="$style.summaryGrid" aria-label="帳號統計">
         <q-card flat bordered
           ><span>總帳號數</span><strong>{{ accounts.length }}</strong></q-card
         >
@@ -203,36 +208,40 @@ onMounted(() => {
         >
       </section>
 
-      <section class="account-grid" aria-label="帳號列表">
+      <section :class="$style.accountGrid" aria-label="帳號列表">
         <q-card
           v-for="account in filteredAccounts"
           :key="account.id"
-          class="account-card"
+          :class="$style.accountCard"
           flat
           bordered
         >
           <q-card-section>
-            <div class="account-card__heading">
-              <div class="account-avatar"><img :src="userIcon" alt="" /></div>
+            <div :class="$style.accountCardHeading">
+              <div :class="$style.accountAvatar"><img :src="userIcon" alt="" /></div>
               <div>
                 <h2>{{ account.name }}</h2>
-                <q-badge :class="account.status === 'ON' ? 'status-enabled' : 'status-disabled'">
+                <q-badge
+                  :class="account.status === 'ON' ? $style.statusEnabled : $style.statusDisabled"
+                >
                   {{ account.status === 'ON' ? '啟用' : '停用' }}
                 </q-badge>
               </div>
             </div>
 
-            <div class="account-detail"><img :src="emailIcon" alt="" />{{ account.email }}</div>
-            <div class="account-detail">
+            <div :class="$style.accountDetail">
+              <img :src="emailIcon" alt="" />{{ account.email }}
+            </div>
+            <div :class="$style.accountDetail">
               <img :src="userIcon" alt="" />{{ roleLabels[account.roleLevel] }}
             </div>
-            <div class="account-detail">
+            <div :class="$style.accountDetail">
               <img :src="calendarIcon" alt="" />{{ formatDate(account.createdAt) }}
             </div>
 
             <q-separator />
 
-            <div class="account-actions">
+            <div :class="$style.accountActions">
               <q-btn
                 flat
                 no-caps
@@ -242,7 +251,7 @@ onMounted(() => {
                 <img :src="editIcon" alt="" />編輯
               </q-btn>
               <q-btn
-                class="delete-button"
+                :class="$style.deleteButton"
                 flat
                 no-caps
                 :loading="isDeletingAccount(account.id)"
@@ -256,7 +265,7 @@ onMounted(() => {
         </q-card>
       </section>
 
-      <p v-if="!accountsLoading && filteredAccounts.length === 0" class="empty-state">
+      <p v-if="!accountsLoading && filteredAccounts.length === 0" :class="$style.emptyState">
         找不到符合條件的帳號
       </p>
     </main>
@@ -269,3 +278,318 @@ onMounted(() => {
     />
   </div>
 </template>
+
+<style module lang="scss">
+$primary: #5538f6;
+$primary-dark: #4327ea;
+$muted: #526077;
+$page: #f8f9fb;
+
+.primaryButton {
+  min-height: 50px;
+  border-radius: 10px;
+  color: #fff;
+  background: $primary;
+  font-size: 16px;
+  font-weight: 500;
+
+  &:hover {
+    background: $primary-dark;
+  }
+
+  img {
+    width: 21px;
+    height: 21px;
+    margin-right: 8px;
+    filter: brightness(0) invert(1);
+  }
+}
+
+.fieldIcon {
+  width: 20px;
+  height: 20px;
+  opacity: 0.5;
+}
+
+.appInput {
+  :global(.q-field__control) {
+    min-height: 50px;
+    border-radius: 10px;
+    background: #fff;
+  }
+
+  :global(.q-field__native),
+  :global(.q-field__input) {
+    font-size: 16px;
+  }
+
+  &:global(.q-field--outlined) :global(.q-field__control)::before {
+    border-color: #ccd3df;
+  }
+
+  &:global(.q-field--focused) :global(.q-field__control)::after {
+    border-color: $primary;
+  }
+}
+
+.homePage {
+  min-height: 100vh;
+  background: $page;
+}
+
+.appHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  min-height: 94px;
+  padding: 16px 30px;
+  border-bottom: 1px solid #e1e4e9;
+  background: #fff;
+  box-shadow: 0 2px 4px rgb(25 35 55 / 5%);
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+
+  h1 {
+    margin: 0 0 2px;
+    font-size: 24px;
+    font-weight: 700;
+  }
+
+  p {
+    margin: 0;
+    color: $muted;
+    font-size: 14px;
+  }
+}
+
+.brandIcon {
+  display: grid;
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+  background: $primary;
+  place-items: center;
+
+  img {
+    width: 24px;
+    filter: brightness(0) invert(1);
+  }
+}
+
+.logoutButton {
+  color: #354158;
+  font-size: 16px;
+
+  img {
+    width: 20px;
+    margin-right: 7px;
+  }
+}
+
+.homeContent {
+  width: 100%;
+  max-width: 1120px;
+  margin: 0 auto;
+  padding: 32px 30px 56px;
+}
+
+.homeToolbar {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  margin-bottom: 24px;
+  gap: 16px;
+}
+
+.searchInput :global(.q-field__control),
+.addButton {
+  height: 50px;
+}
+
+.addButton {
+  min-width: 140px;
+}
+
+.summaryGrid,
+.accountGrid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+}
+
+.summaryGrid {
+  margin-bottom: 32px;
+
+  :global(.q-card) {
+    display: flex;
+    min-height: 102px;
+    padding: 24px;
+    border-color: #dde1e7;
+    border-radius: 10px;
+    flex-direction: column;
+    box-shadow: 0 2px 4px rgb(25 35 55 / 7%);
+  }
+
+  span {
+    margin-bottom: 4px;
+    color: $muted;
+  }
+
+  strong {
+    font-size: 17px;
+    font-weight: 500;
+  }
+}
+
+.accountCard {
+  border-color: #dde1e7;
+  border-radius: 10px;
+  box-shadow: 0 2px 4px rgb(25 35 55 / 7%);
+
+  :global(.q-card__section) {
+    padding: 24px;
+  }
+
+  :global(.q-separator) {
+    margin: 10px 0 16px;
+  }
+}
+
+.accountCardHeading {
+  display: flex;
+  align-items: center;
+  margin-bottom: 20px;
+  gap: 12px;
+
+  h2 {
+    display: inline-block;
+    margin: 0 8px 5px 0;
+    font-size: 17px;
+    font-weight: 500;
+  }
+}
+
+.accountAvatar {
+  display: grid;
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #6548ff, #8b2cff);
+  flex: 0 0 auto;
+  place-items: center;
+
+  img {
+    width: 24px;
+    filter: brightness(0) invert(1);
+  }
+}
+
+.statusEnabled,
+.statusDisabled {
+  padding: 5px 9px;
+  border-radius: 999px;
+  color: #fff;
+  font-size: 14px;
+}
+
+.statusEnabled {
+  background: #00bf54;
+}
+
+.statusDisabled {
+  background: #9ca3af;
+}
+
+.accountDetail {
+  display: flex;
+  align-items: center;
+  min-height: 36px;
+  color: #425069;
+  gap: 10px;
+
+  img {
+    width: 16px;
+    height: 16px;
+    opacity: 0.82;
+  }
+}
+
+.accountActions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+
+  :global(.q-btn) {
+    min-height: 40px;
+    border-radius: 9px;
+    color: $primary;
+    background: #eef1ff;
+
+    img {
+      width: 16px;
+      margin-right: 8px;
+      filter: invert(32%) sepia(87%) saturate(6035%) hue-rotate(246deg) brightness(97%);
+    }
+  }
+
+  .deleteButton {
+    color: #f20b2e;
+    background: #fff0f2;
+
+    img {
+      filter: invert(16%) sepia(96%) saturate(5495%) hue-rotate(344deg) brightness(101%);
+    }
+  }
+}
+
+.emptyState {
+  padding: 50px 0;
+  color: $muted;
+  text-align: center;
+}
+
+@media (max-width: 800px) {
+  .summaryGrid,
+  .accountGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .summaryGrid {
+    gap: 12px;
+  }
+}
+
+@media (max-width: 560px) {
+  .appHeader {
+    min-height: 80px;
+    padding: 14px 16px;
+  }
+
+  .brand h1 {
+    font-size: 19px;
+  }
+
+  .brand p {
+    display: none;
+  }
+
+  .logoutButton {
+    padding: 8px;
+  }
+
+  .homeContent {
+    padding: 24px 16px 40px;
+  }
+
+  .homeToolbar {
+    grid-template-columns: 1fr;
+  }
+
+  .addButton {
+    width: 100%;
+  }
+}
+</style>
