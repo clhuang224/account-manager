@@ -15,6 +15,13 @@ app.use(createPinia())
 app.use(router)
 app.use(Quasar, {
   plugins: { Notify },
+  config: {
+    notify: {
+      position: 'top-right',
+      timeout: 4000,
+      progress: true,
+    },
+  },
   lang: quasarLang,
   iconSet: quasarIconSet,
 })
