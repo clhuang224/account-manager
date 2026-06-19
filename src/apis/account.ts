@@ -59,5 +59,5 @@ export async function updateAccount(
 }
 
 export async function deleteAccount(id: string): Promise<void> {
-  await apiClient.patch<void>(`/delete-account/${id}`)
+  await apiClient.delete<void>(`/delete-account/${id}`)
 }
