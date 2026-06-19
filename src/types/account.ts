@@ -14,9 +14,19 @@ export interface AccountResponse {
   data: AccountData
 }
 
+export interface UpdateAccountResponse {
+  message: string
+  account: AccountResponse
+}
+
 export interface Account extends AccountData {
   id: string
   createdAt: string
+}
+
+export interface UpdateAccountResult {
+  message: string
+  account: Account
 }
 
 export type AccountFormData = AccountData

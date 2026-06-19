@@ -1,6 +1,12 @@
 import axios from 'axios'
 import type { AxiosError } from 'axios'
-import type { Account, AccountFormData, AccountResponse } from '@/types/account'
+import type {
+  Account,
+  AccountFormData,
+  AccountResponse,
+  UpdateAccountResponse,
+  UpdateAccountResult,
+} from '@/types/account'
 import type { AuthCredentials } from '@/types/auth'
 
 const apiClient = axios.create({
@@ -41,8 +47,15 @@ export async function createAccount(data: AccountFormData): Promise<void> {
   await apiClient.post<void>('/create-account', { data })
 }
 
-export async function updateAccount(id: string, data: AccountFormData): Promise<void> {
-  await apiClient.patch<void>(`/update-account/${id}`, { data })
+export async function updateAccount(
+  id: string,
+  data: AccountFormData,
+): Promise<UpdateAccountResult> {
+  const response = await apiClient.patch<UpdateAccountResponse>(`/update-account/${id}`, { data })
+  return {
+    message: response.data.message,
+    account: normalizeAccount(response.data.account),
+  }
 }
 
 export async function deleteAccount(id: string): Promise<void> {

@@ -29,6 +29,10 @@ interface SaveAccountPayload {
   form: AccountFormData
 }
 
+interface SaveAccountResult {
+  message: string
+}
+
 const roleLabels: Record<RoleLevel, string> = {
   ADMIN: '管理員',
   EDITOR: '編輯',
@@ -65,9 +69,16 @@ const { dispatch: loadAccounts, loading: accountsLoading } = useAction<Account[]
   onError: showError,
 })
 
-const { dispatch: saveAccount, loading: savingAccount } = useAction<void, SaveAccountPayload>({
+const { dispatch: saveAccount, loading: savingAccount } = useAction<
+  SaveAccountResult,
+  SaveAccountPayload
+>({
   concurrency: 'exhaust',
-  action: ({ account, form }) => (account ? updateAccount(account.id, form) : createAccount(form)),
+  action: async ({ account, form }) => {
+    if (account) return updateAccount(account.id, form)
+    await createAccount(form)
+    return { message: '帳號已新增' }
+  },
   validators: [
     (payload) => ({
       valid: Boolean(payload?.form.name.trim()),
@@ -80,9 +91,9 @@ const { dispatch: saveAccount, loading: savingAccount } = useAction<void, SaveAc
       message: '請輸入電子郵件',
     }),
   ],
-  onSuccess: async (_, payload) => {
+  onSuccess: async (result) => {
     dialogOpen.value = false
-    $q.notify({ type: 'positive', message: payload?.account ? '帳號已更新' : '帳號已新增' })
+    $q.notify({ type: 'positive', message: result.message })
     await loadAccounts()
   },
   onError: showError,
