@@ -4,6 +4,7 @@ import type {
   Account,
   AccountFormData,
   AccountResponse,
+  MutationResult,
   UpdateAccountResponse,
   UpdateAccountResult,
 } from '@/types/account'
@@ -43,8 +44,9 @@ export async function getAccountById(id: string): Promise<Account> {
   return normalizeAccount(response.data)
 }
 
-export async function createAccount(data: AccountFormData): Promise<void> {
-  await apiClient.post<void>('/create-account', { data })
+export async function createAccount(data: AccountFormData): Promise<MutationResult> {
+  const response = await apiClient.post<MutationResult>('/create-account', { data })
+  return response.data
 }
 
 export async function updateAccount(
@@ -58,6 +60,7 @@ export async function updateAccount(
   }
 }
 
-export async function deleteAccount(id: string): Promise<void> {
-  await apiClient.delete<void>(`/delete-account/${id}`)
+export async function deleteAccount(id: string): Promise<MutationResult> {
+  const response = await apiClient.delete<MutationResult>(`/delete-account/${id}`)
+  return response.data
 }

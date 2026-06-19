@@ -14,8 +14,11 @@ export interface AccountResponse {
   data: AccountData
 }
 
-export interface UpdateAccountResponse {
+export interface MutationResult {
   message: string
+}
+
+export interface UpdateAccountResponse extends MutationResult {
   account: AccountResponse
 }
 
@@ -24,8 +27,7 @@ export interface Account extends AccountData {
   createdAt: string
 }
 
-export interface UpdateAccountResult {
-  message: string
+export interface UpdateAccountResult extends MutationResult {
   account: Account
 }
 

@@ -22,15 +22,11 @@ import logoutIcon from '@/assets/icons/logout.svg'
 import searchIcon from '@/assets/icons/search.svg'
 import userIcon from '@/assets/icons/user.svg'
 import usersIcon from '@/assets/icons/users.svg'
-import type { Account, AccountFormData, RoleLevel } from '@/types/account'
+import type { Account, AccountFormData, MutationResult, RoleLevel } from '@/types/account'
 
 interface SaveAccountPayload {
   account: Account | null
   form: AccountFormData
-}
-
-interface SaveAccountResult {
-  message: string
 }
 
 const roleLabels: Record<RoleLevel, string> = {
@@ -70,15 +66,11 @@ const { dispatch: loadAccounts, loading: accountsLoading } = useAction<Account[]
 })
 
 const { dispatch: saveAccount, loading: savingAccount } = useAction<
-  SaveAccountResult,
+  MutationResult,
   SaveAccountPayload
 >({
   concurrency: 'exhaust',
-  action: async ({ account, form }) => {
-    if (account) return updateAccount(account.id, form)
-    await createAccount(form)
-    return { message: '帳號已新增' }
-  },
+  action: ({ account, form }) => (account ? updateAccount(account.id, form) : createAccount(form)),
   validators: [
     (payload) => ({
       valid: Boolean(payload?.form.name.trim()),
@@ -103,12 +95,12 @@ const {
   dispatch: removeAccount,
   loading: deletingAccount,
   isCurrentPayload: isDeletingAccount,
-} = useAction<void, string>({
+} = useAction<MutationResult, string>({
   concurrency: 'exhaust',
   guards: [(id) => Boolean(id)],
   action: deleteAccount,
-  onSuccess: async () => {
-    $q.notify({ type: 'positive', message: '帳號已刪除' })
+  onSuccess: async (result) => {
+    $q.notify({ type: 'positive', message: result.message })
     await loadAccounts()
   },
   onError: showError,
