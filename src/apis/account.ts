@@ -1,6 +1,6 @@
 import axios from 'axios'
 import type { AxiosError } from 'axios'
-import type { Account } from '@/types/account'
+import type { Account, AccountFormData, AccountResponse } from '@/types/account'
 import type { AuthCredentials } from '@/types/auth'
 
 const apiClient = axios.create({
@@ -23,21 +23,25 @@ export function isApiError(error: unknown): error is ApiError {
   return axios.isAxiosError<ErrorResponse>(error)
 }
 
+function normalizeAccount({ id, createdAt, data }: AccountResponse): Account {
+  return { id, createdAt, ...data }
+}
+
 export async function getAccounts(credentials: AuthCredentials): Promise<Account[]> {
-  const response = await apiClient.get<Account[]>('/accounts', { params: credentials })
-  return response.data
+  const response = await apiClient.get<AccountResponse[]>('/accounts', { params: credentials })
+  return response.data.map(normalizeAccount)
 }
 
 export async function getAccountById(id: string): Promise<Account> {
-  const response = await apiClient.get<Account>(`/account/${id}`)
-  return response.data
+  const response = await apiClient.get<AccountResponse>(`/account/${id}`)
+  return normalizeAccount(response.data)
 }
 
-export async function createAccount(data: Omit<Account, 'id'>): Promise<void> {
+export async function createAccount(data: AccountFormData): Promise<void> {
   await apiClient.post<void>('/create-account', { data })
 }
 
-export async function updateAccount(id: string, data: Omit<Account, 'id'>): Promise<void> {
+export async function updateAccount(id: string, data: AccountFormData): Promise<void> {
   await apiClient.patch<void>(`/update-account/${id}`, { data })
 }
 

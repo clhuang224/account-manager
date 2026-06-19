@@ -15,6 +15,7 @@ import { useAction } from '@/composables/useAction'
 import { useAuthStore } from '@/stores/auth'
 import addIcon from '@/assets/icons/add.svg'
 import authIcon from '@/assets/icons/auth.svg'
+import calendarIcon from '@/assets/icons/calendar.svg'
 import deleteIcon from '@/assets/icons/delete.svg'
 import editIcon from '@/assets/icons/edit.svg'
 import emailIcon from '@/assets/icons/email.svg'
@@ -117,6 +118,10 @@ const filteredAccounts = computed(() => {
   )
 })
 
+function formatDate(value: string) {
+  return new Intl.DateTimeFormat('zh-TW', { dateStyle: 'medium' }).format(new Date(value))
+}
+
 function openCreateDialog() {
   editingAccount.value = null
   dialogOpen.value = true
@@ -209,6 +214,9 @@ onMounted(() => {
             <div class="account-detail"><img :src="emailIcon" alt="" />{{ account.email }}</div>
             <div class="account-detail">
               <img :src="userIcon" alt="" />{{ roleLabels[account.roleLevel] }}
+            </div>
+            <div class="account-detail">
+              <img :src="calendarIcon" alt="" />{{ formatDate(account.createdAt) }}
             </div>
 
             <q-separator />
