@@ -19,7 +19,7 @@ body,
 body {
   color: $ink;
   background: $page;
-  font-family: Roboto, "Noto Sans TC", sans-serif;
+  font-family: Roboto, 'Noto Sans TC', sans-serif;
 }
 
 a {
@@ -56,7 +56,7 @@ a {
   &.required::after {
     margin-left: 4px;
     color: #e11d48;
-    content: "*";
+    content: '*';
   }
 }
 

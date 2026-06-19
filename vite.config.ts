@@ -6,6 +6,7 @@ import vueDevTools from 'vite-plugin-vue-devtools'
 import { quasar, transformAssetUrls } from '@quasar/vite-plugin'
 
 export default defineConfig({
+  base: process.env.BASE_PATH || '/',
   plugins: [
     vue({
       template: { transformAssetUrls },

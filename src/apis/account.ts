@@ -6,7 +6,7 @@ const apiClient = axios.create({
   baseURL: import.meta.env.VITE_API_URL,
   headers: {
     'Content-Type': 'application/json',
-    'interviewerName': import.meta.env.VITE_INTERVIEWER_NAME,
+    interviewerName: import.meta.env.VITE_INTERVIEWER_NAME,
   },
 })
 
@@ -36,10 +36,7 @@ export async function createAccount(data: Omit<Account, 'id'>): Promise<void> {
   await apiClient.post<void>('/create-account', { data })
 }
 
-export async function updateAccount(
-  id: string,
-  data: Omit<Account, 'id'>,
-): Promise<void> {
+export async function updateAccount(id: string, data: Omit<Account, 'id'>): Promise<void> {
   await apiClient.patch<void>(`/update-account/${id}`, { data })
 }
 
