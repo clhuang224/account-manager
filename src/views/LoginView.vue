@@ -16,9 +16,9 @@ interface LoginPayload extends AuthCredentials {
 
 const router = useRouter()
 const authStore = useAuthStore()
-const email = ref('')
+const email = ref(authStore.rememberedEmail)
 const password = ref('')
-const rememberMe = ref(false)
+const rememberMe = ref(Boolean(authStore.rememberedEmail))
 const emailInput = ref<QInput | null>(null)
 
 function isEmailValid() {

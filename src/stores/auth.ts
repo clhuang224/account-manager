@@ -3,10 +3,11 @@ import { defineStore } from 'pinia'
 
 import type { AuthCredentials } from '@/types/auth'
 
-const storageKey = 'account-manager.credentials'
+const credentialsStorageKey = 'account-manager.credentials'
+const rememberedEmailStorageKey = 'account-manager.remembered-email'
 
 function readCredentials(): AuthCredentials | null {
-  const value = localStorage.getItem(storageKey) ?? sessionStorage.getItem(storageKey)
+  const value = sessionStorage.getItem(credentialsStorageKey)
   if (!value) return null
 
   try {
@@ -22,6 +23,7 @@ function readCredentials(): AuthCredentials | null {
 
 export const useAuthStore = defineStore('auth', () => {
   const credentials = ref<AuthCredentials | null>(readCredentials())
+  const rememberedEmail = ref(localStorage.getItem(rememberedEmailStorageKey) ?? '')
   const isAuthenticated = computed(() => credentials.value !== null)
 
   function login(value: AuthCredentials, remember: boolean) {
@@ -30,20 +32,27 @@ export const useAuthStore = defineStore('auth', () => {
       password: value.password,
     }
 
-    localStorage.removeItem(storageKey)
-    sessionStorage.removeItem(storageKey)
-    const storage = remember ? localStorage : sessionStorage
-    storage.setItem(storageKey, JSON.stringify(credentials.value))
+    sessionStorage.setItem(credentialsStorageKey, JSON.stringify(credentials.value))
+    localStorage.removeItem(credentialsStorageKey)
+
+    if (remember) {
+      rememberedEmail.value = credentials.value.email
+      localStorage.setItem(rememberedEmailStorageKey, credentials.value.email)
+    } else {
+      rememberedEmail.value = ''
+      localStorage.removeItem(rememberedEmailStorageKey)
+    }
   }
 
   function logout() {
     credentials.value = null
-    localStorage.removeItem(storageKey)
-    sessionStorage.removeItem(storageKey)
+    sessionStorage.removeItem(credentialsStorageKey)
+    localStorage.removeItem(credentialsStorageKey)
   }
 
   return {
     credentials,
+    rememberedEmail,
     isAuthenticated,
     login,
     logout,
