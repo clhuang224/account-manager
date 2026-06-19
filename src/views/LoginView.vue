@@ -1,18 +1,49 @@
 <script setup lang="ts">
 import { ref } from 'vue'
+import type { QInput } from 'quasar'
 import { useRouter } from 'vue-router'
 
+import { useAction } from '@/composables/useAction'
+import { useAuthStore } from '@/stores/auth'
 import authIcon from '@/assets/icons/auth.svg'
 import emailIcon from '@/assets/icons/email.svg'
 import passwordIcon from '@/assets/icons/password.svg'
+import type { AuthCredentials } from '@/types/auth'
+
+interface LoginPayload extends AuthCredentials {
+  remember: boolean
+}
 
 const router = useRouter()
+const authStore = useAuthStore()
 const email = ref('')
 const password = ref('')
 const rememberMe = ref(false)
+const emailInput = ref<QInput | null>(null)
+
+function isEmailValid() {
+  return emailInput.value?.nativeEl.checkValidity() ?? false
+}
+
+const { dispatch: loginAction, loading } = useAction<void, LoginPayload>({
+  action: ({ remember, ...credentials }) => authStore.login(credentials, remember),
+  validators: [
+    () => ({
+      valid: isEmailValid(),
+      key: 'email',
+      message: '請輸入有效的電子郵件',
+    }),
+  ],
+  onValidateError: () => {
+    emailInput.value?.nativeEl.reportValidity()
+  },
+  onSuccess: async () => {
+    await router.push('/home')
+  },
+})
 
 function login() {
-  void router.push('/home')
+  void loginAction({ email: email.value, password: password.value, remember: rememberMe.value })
 }
 </script>
 
@@ -32,9 +63,11 @@ function login() {
           <label class="field-label" for="login-email">電子郵件</label>
           <q-input
             id="login-email"
+            ref="emailInput"
             v-model="email"
             class="app-input"
             type="email"
+            required
             outlined
             placeholder="your@email.com"
           >
@@ -58,7 +91,13 @@ function login() {
             <a href="#" @click.prevent>忘記密碼？</a>
           </div>
 
-          <q-btn class="primary-button login-button" type="submit" unelevated no-caps>
+          <q-btn
+            class="primary-button login-button"
+            type="submit"
+            :loading="loading"
+            unelevated
+            no-caps
+          >
             <img :src="authIcon" alt="" />
             登入
           </q-btn>

@@ -1,6 +1,7 @@
 import axios from 'axios'
 import type { AxiosError } from 'axios'
 import type { Account } from '@/types/account'
+import type { AuthCredentials } from '@/types/auth'
 
 const apiClient = axios.create({
   baseURL: import.meta.env.VITE_API_URL,
@@ -22,8 +23,8 @@ export function isApiError(error: unknown): error is ApiError {
   return axios.isAxiosError<ErrorResponse>(error)
 }
 
-export async function getAccounts(params: { name: string; email: string }): Promise<Account[]> {
-  const response = await apiClient.get<Account[]>('/accounts', { params })
+export async function getAccounts(credentials: AuthCredentials): Promise<Account[]> {
+  const response = await apiClient.get<Account[]>('/accounts', { params: credentials })
   return response.data
 }
 

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, onMounted, ref, watch } from 'vue'
+import { computed, onMounted, ref } from 'vue'
 import { useQuasar } from 'quasar'
 import { useRouter } from 'vue-router'
 
@@ -12,6 +12,7 @@ import {
   updateAccount,
 } from '@/apis/account'
 import { useAction } from '@/composables/useAction'
+import { useAuthStore } from '@/stores/auth'
 import addIcon from '@/assets/icons/add.svg'
 import authIcon from '@/assets/icons/auth.svg'
 import deleteIcon from '@/assets/icons/delete.svg'
@@ -36,6 +37,7 @@ const roleLabels: Record<RoleLevel, string> = {
 
 const router = useRouter()
 const $q = useQuasar()
+const authStore = useAuthStore()
 const search = ref('')
 const dialogOpen = ref(false)
 const editingAccount = ref<Account | null>(null)
@@ -51,10 +53,11 @@ function showError(error: unknown) {
   $q.notify({ type: 'negative', message })
 }
 
-const { dispatch: loadAccounts, loading: accountsLoading } = useAction<Account[], string>({
-  debounce: 300,
-  concurrency: 'latest',
-  action: (keyword) => getAccounts({ name: keyword, email: keyword }),
+const { dispatch: loadAccounts, loading: accountsLoading } = useAction<Account[]>({
+  action: () => {
+    if (!authStore.credentials) throw new Error('尚未登入')
+    return getAccounts(authStore.credentials)
+  },
   onSuccess: (result) => {
     accounts.value = result
   },
@@ -79,7 +82,7 @@ const { dispatch: saveAccount, loading: savingAccount } = useAction<void, SaveAc
   onSuccess: async (_, payload) => {
     dialogOpen.value = false
     $q.notify({ type: 'positive', message: payload?.account ? '帳號已更新' : '帳號已新增' })
-    await loadAccounts(search.value)
+    await loadAccounts()
   },
   onError: showError,
 })
@@ -94,7 +97,7 @@ const {
   action: deleteAccount,
   onSuccess: async () => {
     $q.notify({ type: 'positive', message: '帳號已刪除' })
-    await loadAccounts(search.value)
+    await loadAccounts()
   },
   onError: showError,
 })
@@ -102,6 +105,17 @@ const {
 const enabledCount = computed(
   () => accounts.value.filter((account) => account.status === 'ON').length,
 )
+
+const filteredAccounts = computed(() => {
+  const keyword = search.value?.trim().toLocaleLowerCase() ?? ''
+  if (!keyword) return accounts.value
+
+  return accounts.value.filter((account) =>
+    [account.name, account.email, roleLabels[account.roleLevel]].some((value) =>
+      value.toLocaleLowerCase().includes(keyword),
+    ),
+  )
+})
 
 function openCreateDialog() {
   editingAccount.value = null
@@ -118,15 +132,12 @@ function submitAccount(form: AccountFormData) {
 }
 
 function logout() {
+  authStore.logout()
   void router.push('/login')
 }
 
-watch(search, (keyword) => {
-  void loadAccounts(keyword?.trim() ?? '')
-})
-
 onMounted(() => {
-  void loadAccounts('')
+  void loadAccounts()
 })
 </script>
 
@@ -177,7 +188,13 @@ onMounted(() => {
       </section>
 
       <section class="account-grid" aria-label="帳號列表">
-        <q-card v-for="account in accounts" :key="account.id" class="account-card" flat bordered>
+        <q-card
+          v-for="account in filteredAccounts"
+          :key="account.id"
+          class="account-card"
+          flat
+          bordered
+        >
           <q-card-section>
             <div class="account-card__heading">
               <div class="account-avatar"><img :src="userIcon" alt="" /></div>
@@ -220,7 +237,7 @@ onMounted(() => {
         </q-card>
       </section>
 
-      <p v-if="!accountsLoading && accounts.length === 0" class="empty-state">
+      <p v-if="!accountsLoading && filteredAccounts.length === 0" class="empty-state">
         找不到符合條件的帳號
       </p>
     </main>
